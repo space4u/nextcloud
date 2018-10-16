@@ -1,4 +1,4 @@
-FROM nextcloud:apache
-RUN apt-get update
-RUN apt-get install -y tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu
-RUN echo -n "-1" >> /usr/local/etc/php/conf.d/memory-limit.ini
+FROM docker pull linuxserver/nextcloud
+RUN apk update
+RUN apk add tesseract-ocr
+RUN apk add tesseract-ocr-data-deu
