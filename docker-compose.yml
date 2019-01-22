@@ -1,0 +1,54 @@
+version: '2'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: mysql
+    network_mode: bridge
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /opt/nextcloud/mysql/mysql_data/_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=password
+
+  search:
+    image: space4u/elasticsearch
+    container_name: elasticsearch
+    network_mode: bridge
+    ports:
+      - 9200:9200
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /opt/nextcloud/elasticsearch/elasticsearch_data/_data:/usr/share/elasticsearch/data
+    environment:
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+
+  app:
+    image: space4u/nextcloud
+    container_name: nextcloud
+    network_mode: bridge
+    ports:
+      - 443:443
+    links:
+      - db
+      - search
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /opt/nextcloud/nextcloud/nextcloud_config/_data:/config
+      - /opt/nextcloud/nextcloud/nextcloud_data/_data:/data
+    restart: always
+    depends_on:
+      - db
+      - search
